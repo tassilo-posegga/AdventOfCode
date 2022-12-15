@@ -36,9 +36,11 @@ fun main(args: Array<String>) {
 }
 
 private fun executeCommand(command: Command) {
-    for (i in 1..command.amount) {
-        Storage.moveCrate(command.from, command.to)
-    }
+    Storage.moveCrates(
+        fromPile = command.from,
+        toPile = command.to,
+        amount = command.amount
+    )
 }
 
 private fun String.parseCommand(): Command {
@@ -59,6 +61,16 @@ data class Command(
 object Storage {
     private val cratePiles: MutableMap<Int, Stack<Char>> = mutableMapOf()
 
+    fun moveCrates(fromPile: Int, toPile: Int, amount: Int) {
+        val tempStack = Stack<Char>()
+        for (i in 1..amount) {
+            tempStack.push(cratePiles[fromPile]!!.pop())
+        }
+        for (i in 1..amount) {
+            cratePiles[toPile]!!.push(tempStack.pop())
+        }
+    }
+
     fun print() {
         cratePiles.forEach { entry ->
             print("${entry.key}: ->")
@@ -67,10 +79,6 @@ object Storage {
             }
             println()
         }
-    }
-
-    fun moveCrate(fromPile: Int, toPile: Int) {
-        cratePiles[toPile]!!.push(cratePiles[fromPile]!!.pop())
     }
 
     fun initPiles(numberOfPiles: Int) {
