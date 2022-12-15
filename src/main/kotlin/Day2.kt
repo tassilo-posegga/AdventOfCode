@@ -1,3 +1,4 @@
+import java.lang.reflect.WildcardType
 import java.net.URL
 import java.util.InputMismatchException
 
@@ -14,14 +15,17 @@ fun main(args: Array<String>) {
     var totalScore = 0
 
     rounds.forEach { round ->
-        val roundChoices = round.split(" ").map { it.asRps() }
-        val opponentChoice = roundChoices.first()
-        val myChoice = roundChoices.last()
+        val roundChoices = round.split(" ")
+        val opponentChoice = roundChoices.first().asRps()
+        val neededChoice = roundChoices.last().asResult()
 
-        totalScore += myChoice.value
+        totalScore += when (neededChoice) {
+            Result.Win -> opponentChoice.getWinner().value
+            Result.Draw -> opponentChoice.value
+            Result.Loss -> opponentChoice.getWinner().getWinner().value
+        }
 
-        if (myChoice.isWinAgainst(opponentChoice)) totalScore += 6
-        if (myChoice.isDrawAgainst(opponentChoice)) totalScore += 3
+        totalScore += neededChoice.value
     }
 
     println("Total score: $totalScore")
@@ -32,25 +36,29 @@ private fun String.asRps(): RPS =
         "A" -> RPS.Rock
         "B" -> RPS.Paper
         "C" -> RPS.Scissor
-        "X" -> RPS.Rock
-        "Y" -> RPS.Paper
-        "Z" -> RPS.Scissor
         else -> throw InputMismatchException()
     }
 
-private fun RPS.isWinAgainst(rps: RPS): Boolean =
+private fun String.asResult(): Result =
     when (this) {
-        RPS.Rock -> rps == RPS.Scissor
-        RPS.Paper -> rps == RPS.Rock
-        RPS.Scissor -> rps == RPS.Paper
+        "X" -> Result.Loss
+        "Y" -> Result.Draw
+        "Z" -> Result.Win
+        else -> throw InputMismatchException()
     }
 
-private fun RPS.isDrawAgainst(rps: RPS): Boolean =
+private fun RPS.getWinner(): RPS =
     when (this) {
-        RPS.Rock -> rps == RPS.Rock
-        RPS.Paper -> rps == RPS.Paper
-        RPS.Scissor -> rps == RPS.Scissor
+        RPS.Rock -> RPS.Paper
+        RPS.Paper -> RPS.Scissor
+        RPS.Scissor -> RPS.Rock
     }
+
+enum class Result(val value: Int) {
+    Loss(0),
+    Draw(3),
+    Win(6)
+}
 
 enum class RPS(val value: Int) {
     Rock(1),
