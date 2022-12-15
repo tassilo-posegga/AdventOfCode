@@ -5,14 +5,14 @@ fun main(args: Array<String>) {
     val input = "https://pastebin.com/raw/gjfNWJny".getTextFromUrl().splitOnLineBreak()
     println("Overlaps: ${getOverlaps(input)}")
 }
+
 fun getOverlaps(strings: List<String>): Int {
     var fullInterSectsCount = 0
     strings.forEach {
         val pair = it.getPair()
         val firstRange: IntRange = pair.first.getRange()
         val secondRange: IntRange = pair.second.getRange()
-        val intersects = secondRange.intersect(firstRange)
-        if (intersects == firstRange.toSet() || intersects == secondRange.toSet())
+        if (secondRange.intersect(firstRange).isNotEmpty())
             fullInterSectsCount++
     }
     return fullInterSectsCount
