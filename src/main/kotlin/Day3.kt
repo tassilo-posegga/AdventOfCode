@@ -7,39 +7,37 @@
  */
 fun main(args: Array<String>) {
     val input = "https://pastebin.com/raw/2R8C2XHk".getTextFromUrl().splitOnLineBreak()
-    println("Sum of priorities: ${PriorityCounter.getSummedPriorities(input)}")
-}
 
-data class Rucksack(
-    val firstCompartment: Compartment,
-    val secondCompartment: Compartment,
-)
-
-data class Compartment(
-    val items: String,
-)
-
-object RucksackPacker {
-    fun packRucksacks(rucksacks: List<String>): List<Rucksack> =
-        rucksacks.map(::packRucksack)
-
-    private fun packRucksack(rucksackString: String): Rucksack {
-        val totalItems = rucksackString.length
-        val middle = rucksackString.length / 2
-        return Rucksack(
-            firstCompartment = Compartment(rucksackString.substring(0, middle)),
-            secondCompartment = Compartment(rucksackString.substring(middle, totalItems))
+    val groups = mutableListOf<Group>()
+    for (i: Int in input.indices step 3) {
+        groups.add(
+            Group(
+                firstRucksack = input[i],
+                secondRucksack = input[i + 1],
+                thirdRucksack = input[i + 2],
+            )
         )
     }
+
+    val priorities = groups.sumOf { Priorities.priorityMap[it.findBadge()!!]!! }
+
+    println("Sum of priorities: $priorities")
 }
 
-private fun Rucksack.getWrongItem(): Char? {
-    firstCompartment.items.toCharArray().forEach { firstCompartmentItem ->
-        val matchingItem = secondCompartment.items.toCharArray().find { firstCompartmentItem == it }
-        if (matchingItem != null) return matchingItem
+fun Group.findBadge(): Char? {
+    firstRucksack.forEach {
+        if (secondRucksack.contains(it) && thirdRucksack.contains(it)) {
+            return it
+        }
     }
     return null
 }
+
+data class Group(
+    val firstRucksack: String,
+    val secondRucksack: String,
+    val thirdRucksack: String,
+)
 
 object Priorities {
 
@@ -56,12 +54,4 @@ object Priorities {
         }
         return priorityMap
     }
-}
-
-object PriorityCounter {
-
-    fun getSummedPriorities(input: List<String>): Int =
-        RucksackPacker.packRucksacks(input).sumOf {
-            Priorities.priorityMap[it.getWrongItem()]!!
-        }
 }
