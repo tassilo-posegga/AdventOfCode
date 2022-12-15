@@ -1,9 +1,5 @@
 /**
- * https://adventofcode.com/2022/day/2
- *
- * A = Rock
- * B = Paper
- * C = Scissor
+ * https://adventofcode.com/2022/day/3
  */
 fun main(args: Array<String>) {
     val input = "https://pastebin.com/raw/2R8C2XHk".getTextFromUrl().splitOnLineBreak()
