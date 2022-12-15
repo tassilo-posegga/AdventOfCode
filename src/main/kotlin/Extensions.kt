@@ -1,7 +1,7 @@
 import java.net.URL
 
-fun getTextFromUrl(url: String): String =
-    URL(url).readText()
+fun String.getTextFromUrl(): String =
+    URL(this).readText()
 
-fun splitStringOnLineBreak(string: String): List<String> =
-    string.split("\r\n")
+fun String.splitOnLineBreak(): List<String> =
+    split("\r\n")

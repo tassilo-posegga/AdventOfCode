@@ -1,5 +1,3 @@
-import java.lang.reflect.WildcardType
-import java.net.URL
 import java.util.InputMismatchException
 
 /**
@@ -10,7 +8,7 @@ import java.util.InputMismatchException
  * C = Scissor
  */
 fun main(args: Array<String>) {
-    val rounds = splitStringOnLineBreak(getTextFromUrl("https://pastebin.com/raw/LzsxbPNt"))
+    val rounds = "https://pastebin.com/raw/LzsxbPNt".getTextFromUrl().splitOnLineBreak()
 
     var totalScore = 0
 
