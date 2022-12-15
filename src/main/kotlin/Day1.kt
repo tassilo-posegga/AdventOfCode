@@ -5,12 +5,13 @@ import java.net.URL
  */
 fun main(args: Array<String>) {
     val input = URL("https://pastebin.com/raw/7cyA5jW5").readText()
-    val inputPerElf = input.split("\r\n\r\n")
-    val clsPerElf = inputPerElf.map { elfInput ->
-        val ints = elfInput.split("\r\n")
-        val foo = ints.map { it.toInt() }
-        foo.sumOf { it }
-    }
+    val caloriesPerMealPerElv = input.split("\r\n\r\n")
+    val totalCaloriesPerElf = caloriesPerMealPerElv.map { elfInput ->
+        elfInput.split("\r\n")
+            .map { it.toInt() }
+            .sumOf { it }
+    }.sorted()
 
-    println(clsPerElf.max())
+    println(totalCaloriesPerElf.last())
+    println(totalCaloriesPerElf.takeLast(3).sum())
 }
