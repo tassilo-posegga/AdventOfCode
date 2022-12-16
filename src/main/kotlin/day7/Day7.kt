@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
     val fileSystem = FileSystem()
     val commandExecutor = CommandExecutor(fileSystem)
     commands.forEach(commandExecutor::executeCommand)
-    println(fileSystem.getDirectoriesAboveSize(100000).sum())
+    println(fileSystem.getDirectoriesBelowSize(100000).sumOf { fileSystem.getFileSize(it) })
 }
 
 fun getCommands(input: String): List<String> =
@@ -97,16 +97,24 @@ class FileSystem {
         currentNode = currentNode.parent!!
     }
 
-    fun getDirectoriesAboveSize(size: Int): List<Int> {
-        val directorySizesAboveMinimumSize = tree.root.childs.mapNotNull {
-            if (it.type == NodeType.File) null
-            else getFileSize(it)
-        }.filter {
-            it >= size
+    fun getDirectoriesBelowSize(size: Int): List<Node> {
+        val allDirectories = listAllDirectories(tree.root)
+        return allDirectories.filter {
+            getFileSize(it) <= size
         }
-
-        return directorySizesAboveMinimumSize
     }
+
+    fun listAllDirectories(
+        node: Node,
+        list: MutableList<Node> = mutableListOf()
+    ): List<Node> {
+        list += node.listSubDirectories()
+        node.childs.forEach { listAllDirectories(it, list) }
+        return list
+    }
+
+    private fun Node.listSubDirectories(): List<Node> =
+        childs.filter { it.type == NodeType.Directory }
 
     fun getFileSize(node: Node): Int {
         return node.size + node.childs.sumOf { getFileSize(it) }

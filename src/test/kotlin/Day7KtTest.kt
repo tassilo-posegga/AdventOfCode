@@ -3,6 +3,7 @@ import day7.FileSystem
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class Day7KtTest {
 
@@ -18,34 +19,75 @@ class Day7KtTest {
 
     @Test
     fun testTotalSize() {
-        assertEquals(48381165, fileSystem.getFileSize(fileSystem.tree.root))
+        assertEquals(
+            expected = 48381165,
+            actual = fileSystem.getFileSize(fileSystem.tree.root)
+        )
     }
 
     @Test
-    fun testDirectoriesAbove100000() {
-        assertEquals(24933642, fileSystem.getDirectoriesAboveSize(100000).sum())
+    fun testDirectoriesBelow100000() {
+        assertEquals(
+            expected = 95437,
+            actual = fileSystem.getDirectoriesBelowSize(100000).sumOf { fileSystem.getFileSize(it) }
+        )
     }
 
     @Test
     fun testDirectoryA() {
-        assertEquals(94853, fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "a" }!!))
+        assertEquals(
+            expected = 94853,
+            actual = fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "a" }!!)
+        )
     }
 
     @Test
     fun testDirectoryD() {
-        assertEquals(24933642, fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "d" }!!))
+        assertEquals(
+            expected = 24933642,
+            actual = fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "d" }!!)
+        )
+    }
+
+    @Test
+    fun testDirectoryDExtended() {
+        commandExecutor = CommandExecutor(fileSystem)
+        extendedCommands.forEach(commandExecutor::executeCommand)
+
+        assertEquals(
+            expected = 24933642 + 3000,
+            actual = fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "d" }!!)
+        )
     }
 
     @Test
     fun testDirectoryE() {
         assertEquals(
-            584,
-            fileSystem.getFileSize(
+            expected = 584,
+            actual = fileSystem.getFileSize(
                 fileSystem.tree.root
                     .childs.find { it.name == "a" }!!
                     .childs.find { it.name == "e" }!!
             )
         )
+    }
+
+    @Test
+    fun testFindAllDirectories() {
+        assertEquals(
+            expected = listOf("a", "d", "e"),
+            actual = fileSystem.listAllDirectories(fileSystem.tree.root).map { it.name }
+        )
+    }
+
+    @Test
+    fun doesNotIncludeSingleFiles() {
+        assertFalse(fileSystem.getDirectoriesBelowSize(100000).map { it.size }.contains(14848514))
+        assertFalse(fileSystem.getDirectoriesBelowSize(100000).map { it.size }.contains(8504156))
+        assertFalse(fileSystem.getDirectoriesBelowSize(100000).map { it.size }.contains(4060174))
+        assertFalse(fileSystem.getDirectoriesBelowSize(100000).map { it.size }.contains(8033020))
+        assertFalse(fileSystem.getDirectoriesBelowSize(100000).map { it.size }.contains(5626152))
+        assertFalse(fileSystem.getDirectoriesBelowSize(100000).map { it.size }.contains(7214296))
     }
 
     companion object {
@@ -74,5 +116,21 @@ class Day7KtTest {
             "5626152 d.ext",
             "7214296 k",
         )
+
+        val extendedCommands = commands +
+                listOf(
+                    "dir x",
+                    "\$ cd x",
+                    "\$ ls",
+                    "1000 x.log",
+                    "dir y",
+                    "\$ cd y",
+                    "\$ ls",
+                    "1000 y.log",
+                    "dir z",
+                    "\$ cd z",
+                    "\$ ls",
+                    "1000 z.log",
+                )
     }
 }
