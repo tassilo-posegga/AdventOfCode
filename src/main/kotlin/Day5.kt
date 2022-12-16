@@ -1,7 +1,7 @@
 import java.util.*
 
 /**
- * https://adventofcode.com/2022/day/4
+ * https://adventofcode.com/2022/day/5
  */
 fun main(args: Array<String>) {
     val input = "https://pastebin.com/raw/wM3m6c8E".getTextFromUrl().splitOnLineBreak()
