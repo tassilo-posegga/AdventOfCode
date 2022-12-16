@@ -1,7 +1,7 @@
 import java.lang.StringBuilder
 
 /**
- * https://adventofcode.com/2022/day/10
+ * https://adventofcode.com/2022/day/6
  */
 fun main(args: Array<String>) {
     val input =
