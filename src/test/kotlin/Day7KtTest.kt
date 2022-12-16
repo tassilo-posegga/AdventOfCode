@@ -21,7 +21,7 @@ class Day7KtTest {
     fun testTotalSize() {
         assertEquals(
             expected = 48381165,
-            actual = fileSystem.getFileSize(fileSystem.tree.root)
+            actual = fileSystem.getFilesSize(fileSystem.tree.root)
         )
     }
 
@@ -29,7 +29,7 @@ class Day7KtTest {
     fun testDirectoriesBelow100000() {
         assertEquals(
             expected = 95437,
-            actual = fileSystem.getDirectoriesBelowSize(100000).sumOf { fileSystem.getFileSize(it) }
+            actual = fileSystem.getDirectoriesBelowSize(100000).sumOf { fileSystem.getFilesSize(it) }
         )
     }
 
@@ -37,7 +37,7 @@ class Day7KtTest {
     fun testDirectoryA() {
         assertEquals(
             expected = 94853,
-            actual = fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "a" }!!)
+            actual = fileSystem.getFilesSize(fileSystem.tree.root.childs.find { it.name == "a" }!!)
         )
     }
 
@@ -45,7 +45,7 @@ class Day7KtTest {
     fun testDirectoryD() {
         assertEquals(
             expected = 24933642,
-            actual = fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "d" }!!)
+            actual = fileSystem.getFilesSize(fileSystem.tree.root.childs.find { it.name == "d" }!!)
         )
     }
 
@@ -56,7 +56,7 @@ class Day7KtTest {
 
         assertEquals(
             expected = 24933642 + 3000,
-            actual = fileSystem.getFileSize(fileSystem.tree.root.childs.find { it.name == "d" }!!)
+            actual = fileSystem.getFilesSize(fileSystem.tree.root.childs.find { it.name == "d" }!!)
         )
     }
 
@@ -64,7 +64,7 @@ class Day7KtTest {
     fun testDirectoryE() {
         assertEquals(
             expected = 584,
-            actual = fileSystem.getFileSize(
+            actual = fileSystem.getFilesSize(
                 fileSystem.tree.root
                     .childs.find { it.name == "a" }!!
                     .childs.find { it.name == "e" }!!

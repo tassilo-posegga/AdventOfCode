@@ -12,7 +12,17 @@ fun main(args: Array<String>) {
     val fileSystem = FileSystem()
     val commandExecutor = CommandExecutor(fileSystem)
     commands.forEach(commandExecutor::executeCommand)
-    println(fileSystem.getDirectoriesBelowSize(100000).sumOf { fileSystem.getFileSize(it) })
+
+    val totalSpace = 70000000
+    val neededSpace = 30000000
+    val currentlyUsedSpace = fileSystem.getFilesSize(fileSystem.tree.root)
+    println("Current space used: $currentlyUsedSpace")
+    val availableSpace = totalSpace - currentlyUsedSpace
+    val missingRequiredSpace = neededSpace - availableSpace
+    println("Need $missingRequiredSpace more space")
+    val allDirectorySizes = fileSystem.listAllDirectories(fileSystem.tree.root).map { fileSystem.getFilesSize(it) }
+    val directorySizeToDelete = allDirectorySizes.sorted().first { it >= missingRequiredSpace }
+    println("Delete directory with size $directorySizeToDelete")
 }
 
 fun getCommands(input: String): List<String> =
@@ -100,7 +110,7 @@ class FileSystem {
     fun getDirectoriesBelowSize(size: Int): List<Node> {
         val allDirectories = listAllDirectories(tree.root)
         return allDirectories.filter {
-            getFileSize(it) <= size
+            getFilesSize(it) <= size
         }
     }
 
@@ -116,8 +126,8 @@ class FileSystem {
     private fun Node.listSubDirectories(): List<Node> =
         childs.filter { it.type == NodeType.Directory }
 
-    fun getFileSize(node: Node): Int {
-        return node.size + node.childs.sumOf { getFileSize(it) }
+    fun getFilesSize(node: Node): Int {
+        return node.size + node.childs.sumOf { getFilesSize(it) }
     }
 
     data class Tree(
