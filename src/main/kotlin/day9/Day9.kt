@@ -2,12 +2,16 @@ package day9
 
 import getTextFromUrl
 import splitOnLineBreak
+import kotlin.math.abs
 
 /**
  * https://adventofcode.com/2022/day/9
  */
 fun main(args: Array<String>) {
     val input = "https://pastebin.com/raw/psZsPyJN".getTextFromUrl().splitOnLineBreak()
+    val mover = Mover()
+    mover.executeMoves(MoveParser.parse(input))
+    println("Visited fields: ${mover.getAmountOfVisitedFields()}")
 }
 
 class Mover {
@@ -24,68 +28,48 @@ class Mover {
 
     fun executeMove(move: Move) {
         for (i in 0 until move.amount) {
-            moveHead(move)
-            moveTail()
+            moveField(head, move)
+            moveTail(move)
+            println(tail)
         }
     }
 
-    private fun moveTail() {
-        if (!isTailInRange()) {
-            if ((head.x + 1 == tail.x && head.y + 1 > tail.y)
-                || (head.x + 1 > tail.x && head.y + 1 == tail.y)
-            ) {
-                tail.x += 1
-                tail.y += 1
-                return
-            }
-            if ((head.x - 1 == tail.x && head.y - 1 < tail.y)
-                || (head.x - 1 < tail.x && head.y - 1 == tail.y)
-            ) {
-                tail.x -= 1
-                tail.y -= 1
-                return
-            }
-            if ((head.x - 1 == tail.x && head.y + 1 > tail.y)
-                || (head.x - 1 < tail.x && head.y + 1 == tail.y)
-            ) {
-                tail.x += 1
-                tail.y -= 1
-                return
-            }
-            if ((head.x + 1 == tail.x && head.y - 1 < tail.y)
-                || (head.x + 1 > tail.x && head.y - 1 == tail.y)
-            ) {
-                tail.x -= 1
-                tail.y += 1
-                return
-            }
-
-            if (head.x - 1 > tail.x) tail.x++
-            if (head.x + 1 < tail.x) tail.x--
-            if (head.y - 1 > tail.y) tail.y++
-            if (head.y + 1 < tail.y) tail.y--
+    private fun moveTail(move: Move) {
+        if (!isTailInRange(head, tail)
+            // not in same row and column
+            && head.y != tail.y && head.x != tail.x
+        ) {
+            moveDiagonal(tail, move)
+        } else if (!isTailInRange(head, tail)) {
+            moveField(tail, move)
         }
-        println(tail)
         visitedFields.add(tail.copy())
     }
 
-    fun isTailInRange(): Boolean =
-        head == tail
-                || ((head.x - 1 == tail.x) && ((head.y - 1 == tail.y) || (head.y == tail.y) || (head.y + 1 == tail.y)))
-                || ((head.x == tail.x) && ((head.y - 1 == tail.y) || (head.y == tail.y) || (head.y + 1 == tail.y)))
-                || ((head.x + 1 == tail.x) && ((head.y - 1 == tail.y) || (head.y == tail.y) || (head.y + 1 == tail.y)))
-
-    private fun moveHead(move: Move) {
-        when (move.direction) {
-            Direction.Up -> head.y++
-            Direction.Left -> head.x--
-            Direction.Down -> head.y--
-            Direction.Right -> head.x++
+    private fun moveDiagonal(field: Field, move: Move) {
+        when {
+            head.x - tail.x == 1 -> moveField(field, Move(Direction.Right, 1))
+            head.x - tail.x == -1 -> moveField(field, Move(Direction.Left, 1))
+            head.y - tail.y == 1 -> moveField(field, Move(Direction.Up, 1))
+            head.y - tail.y == -1 -> moveField(field, Move(Direction.Down, 1))
         }
+        moveField(field, move)
     }
 
+    /**
+     * Is in range when tails coordinates are at max 1 away from head on each dimension
+     */
+    fun isTailInRange(head: Field, tail: Field): Boolean =
+        abs(head.x - tail.x) <= 1 && abs(head.y - tail.y) <= 1
 
-
+    private fun moveField(field: Field, move: Move) {
+        when (move.direction) {
+            Direction.Up -> field.y++
+            Direction.Left -> field.x--
+            Direction.Down -> field.y--
+            Direction.Right -> field.x++
+        }
+    }
 }
 
 object MoveParser {

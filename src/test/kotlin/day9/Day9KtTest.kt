@@ -48,12 +48,37 @@ class Day9KtTest {
     }
 
     @Test
-    fun testIsTailInRange() {
-        assertTrue(mover.isTailInRange())
-        mover.executeMove(Move(Direction.Down, 1))
-        assertTrue(mover.isTailInRange())
-        mover.executeMove(Move(Direction.Down, 1))
-        assertFalse(mover.isTailInRange())
+    fun testIsTailInRangeInSurroundingFields() {
+        val head = Field(0, 0)
+
+        assertTrue(mover.isTailInRange(head, Field(0, 0)))
+
+        for (x in -1..1) {
+            for (y in -1..1) {
+                val tail = Field(1, 0)
+                val isInRange = mover.isTailInRange(head, tail)
+                assertTrue(isInRange)
+            }
+        }
+    }
+
+    @Test
+    fun testIsTailInRangeWhen2Away() {
+        val head = Field(0, 0)
+
+        assertFalse(mover.isTailInRange(head, Field(0, 2)))
+        assertFalse(mover.isTailInRange(head, Field(2, 0)))
+        assertFalse(mover.isTailInRange(head, Field(4, 0)))
+    }
+
+    @Test
+    fun testIsTailInRangeWhenDiagonal() {
+        val head = Field(0, 0)
+
+        assertTrue(mover.isTailInRange(head, Field(1, 1)))
+        assertTrue(mover.isTailInRange(head, Field(1, -1)))
+        assertTrue(mover.isTailInRange(head, Field(-1, 1)))
+        assertTrue(mover.isTailInRange(head, Field(-1, -1)))
     }
 
     @Test
