@@ -15,9 +15,8 @@ fun main(args: Array<String>) {
 }
 
 class Mover {
-    var head = Field(0, 0)
-    var tail = Field(0, 0)
-    var visitedFields: MutableList<Field> = mutableListOf(tail)
+    val rope = List(10) { Field(0, 0) }
+    private var visitedFields: MutableList<Field> = mutableListOf(rope.last().copy())
 
     fun getAmountOfVisitedFields() =
         visitedFields.distinct().size
@@ -28,46 +27,71 @@ class Mover {
 
     fun executeMove(move: Move) {
         for (i in 0 until move.amount) {
-            moveField(head, move)
-            moveTail(move)
-            println(tail)
+            // moving the head and each subsequent field if it needs to move
+            moveField(rope.first(), move.direction)
+            for (field in 0 until rope.size - 1) {
+                val head = rope[field]
+                val tail = rope[field + 1]
+                moveTail(head, tail)
+                if (tail == rope.last()) {
+                    visitedFields.add(tail.copy())
+                }
+            }
         }
     }
 
-    private fun moveTail(move: Move) {
-        if (!isTailInRange(head, tail)
-            // not in same row and column
-            && head.y != tail.y && head.x != tail.x
-        ) {
-            moveDiagonal(tail, move)
-        } else if (!isTailInRange(head, tail)) {
-            moveField(tail, move)
-        }
-        visitedFields.add(tail.copy())
+    private fun moveTail(head: Field, tail: Field) {
+        val difference = head - tail // a vector indicating the directions to move
+        if (!isInRangeOfOtherField(difference))
+            moveField(tail, getDirectionToMove(difference))
     }
 
-    private fun moveDiagonal(field: Field, move: Move) {
-        when {
-            head.x - tail.x == 1 -> moveField(field, Move(Direction.Right, 1))
-            head.x - tail.x == -1 -> moveField(field, Move(Direction.Left, 1))
-            head.y - tail.y == 1 -> moveField(field, Move(Direction.Up, 1))
-            head.y - tail.y == -1 -> moveField(field, Move(Direction.Down, 1))
-        }
-        moveField(field, move)
+    private fun getDirectionToMove(difference: Field): Direction = when {
+        difference.x > 0 && difference.y > 0 -> Direction.UpRight
+        difference.x < 0 && difference.y < 0 -> Direction.DownLeft
+        difference.x < 0 && difference.y > 0 -> Direction.UpLeft
+        difference.x > 0 && difference.y < 0 -> Direction.DownRight
+        difference.x > 1 -> Direction.Right
+        difference.x < -1 -> Direction.Left
+        difference.y > 1 -> Direction.Up
+        difference.y < -1 -> Direction.Down
+        else -> Direction.None
     }
 
     /**
      * Is in range when tails coordinates are at max 1 away from head on each dimension
      */
-    fun isTailInRange(head: Field, tail: Field): Boolean =
-        abs(head.x - tail.x) <= 1 && abs(head.y - tail.y) <= 1
+    fun isInRangeOfOtherField(difference: Field): Boolean =
+        abs(difference.x) <= 1 && abs(difference.y) <= 1
 
-    private fun moveField(field: Field, move: Move) {
-        when (move.direction) {
+    private fun moveField(field: Field, direction: Direction) {
+        when (direction) {
             Direction.Up -> field.y++
             Direction.Left -> field.x--
             Direction.Down -> field.y--
             Direction.Right -> field.x++
+
+            Direction.UpLeft -> {
+                field.y++
+                field.x--
+            }
+
+            Direction.UpRight -> {
+                field.y++
+                field.x++
+            }
+
+            Direction.DownLeft -> {
+                field.y--
+                field.x--
+            }
+
+            Direction.DownRight -> {
+                field.y--
+                field.x++
+            }
+
+            Direction.None -> Unit
         }
     }
 }
@@ -101,6 +125,12 @@ data class Field(
     var y: Int,
 ) {
     override fun toString(): String = "$x | $y"
+
+    operator fun minus(other: Field): Field =
+        Field(
+            x = this.x - other.x,
+            y = this.y - other.y
+        )
 }
 
 enum class Direction {
@@ -108,4 +138,9 @@ enum class Direction {
     Left,
     Down,
     Right,
+    UpLeft,
+    UpRight,
+    DownLeft,
+    DownRight,
+    None,
 }
