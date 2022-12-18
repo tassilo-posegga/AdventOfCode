@@ -91,6 +91,16 @@ class Day9KtTest {
     }
 
     @Test
+    fun testAmountOf2Length() {
+        mover = Mover(listOf(Field(0, 0), Field(0, 0)))
+        mover.executeMoves(MoveParser.parse(Input1.INPUT))
+        assertEquals(
+            expected = 13,
+            actual = mover.getAmountOfVisitedFields()
+        )
+    }
+
+    @Test
     fun testAmount2() {
         mover.executeMoves(MoveParser.parse(Input2.INPUT))
         assertEquals(

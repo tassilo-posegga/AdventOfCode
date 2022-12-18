@@ -14,8 +14,9 @@ fun main(args: Array<String>) {
     println("Visited fields: ${mover.getAmountOfVisitedFields()}")
 }
 
-class Mover {
-    val rope = List(10) { Field(0, 0) }
+class Mover(
+    val rope: List<Field> = List(10) { Field(0, 0) },
+) {
     private var visitedFields: MutableList<Field> = mutableListOf(rope.last().copy())
 
     fun getAmountOfVisitedFields() =
@@ -33,29 +34,33 @@ class Mover {
                 val head = rope[field]
                 val tail = rope[field + 1]
                 moveTail(head, tail)
-                if (tail == rope.last()) {
-                    visitedFields.add(tail.copy())
-                }
+                savePositionOfTail(tail)
             }
+        }
+    }
+
+    private fun savePositionOfTail(tail: Field) {
+        if (tail == rope.last()) {
+            visitedFields.add(tail.copy())
         }
     }
 
     private fun moveTail(head: Field, tail: Field) {
         val difference = head - tail // a vector indicating the directions to move
         if (!isInRangeOfOtherField(difference))
-            moveField(tail, getDirectionToMove(difference))
+            getDirectionToMove(difference).forEach { moveField(tail, it) }
     }
 
-    private fun getDirectionToMove(difference: Field): Direction = when {
-        difference.x > 0 && difference.y > 0 -> Direction.UpRight
-        difference.x < 0 && difference.y < 0 -> Direction.DownLeft
-        difference.x < 0 && difference.y > 0 -> Direction.UpLeft
-        difference.x > 0 && difference.y < 0 -> Direction.DownRight
-        difference.x > 1 -> Direction.Right
-        difference.x < -1 -> Direction.Left
-        difference.y > 1 -> Direction.Up
-        difference.y < -1 -> Direction.Down
-        else -> Direction.None
+    private fun getDirectionToMove(difference: Field): List<Direction> = when {
+        difference.x > 0 && difference.y > 0 -> Direction.Up + Direction.Right
+        difference.x < 0 && difference.y < 0 -> Direction.Down + Direction.Left
+        difference.x < 0 && difference.y > 0 -> Direction.Up + Direction.Left
+        difference.x > 0 && difference.y < 0 -> Direction.Down + Direction.Right
+        difference.x > 1 -> listOf(Direction.Right)
+        difference.x < -1 -> listOf(Direction.Left)
+        difference.y > 1 -> listOf(Direction.Up)
+        difference.y < -1 -> listOf(Direction.Down)
+        else -> listOf(Direction.None)
     }
 
     /**
@@ -70,27 +75,6 @@ class Mover {
             Direction.Left -> field.x--
             Direction.Down -> field.y--
             Direction.Right -> field.x++
-
-            Direction.UpLeft -> {
-                field.y++
-                field.x--
-            }
-
-            Direction.UpRight -> {
-                field.y++
-                field.x++
-            }
-
-            Direction.DownLeft -> {
-                field.y--
-                field.x--
-            }
-
-            Direction.DownRight -> {
-                field.y--
-                field.x++
-            }
-
             Direction.None -> Unit
         }
     }
@@ -138,9 +122,8 @@ enum class Direction {
     Left,
     Down,
     Right,
-    UpLeft,
-    UpRight,
-    DownLeft,
-    DownRight,
-    None,
+    None;
+
+    operator fun plus(other: Direction): List<Direction> =
+        listOf(this, other)
 }
