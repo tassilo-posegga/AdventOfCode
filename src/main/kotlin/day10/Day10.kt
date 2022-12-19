@@ -5,7 +5,7 @@ import splitOnLineBreak
 import java.lang.StringBuilder
 
 /**
- * https://adventofcode.com/2022/day/9
+ * https://adventofcode.com/2022/day/10
  */
 fun main(args: Array<String>) {
     val input = "https://pastebin.com/raw/8T5vsnaW".getTextFromUrl().splitOnLineBreak()
